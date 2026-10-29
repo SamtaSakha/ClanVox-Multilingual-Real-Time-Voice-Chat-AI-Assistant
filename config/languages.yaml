@@ -1,0 +1,169 @@
+# ClanVox Language Registry & Tier Configuration
+# Tier 1: Real-time, ultra-low latency, code-switching, full voice support
+# Tier 2: Real-time voice, standard models, high accuracy
+# Tier 3: Beta / experimental, specialist models, confidence gating
+
+languages:
+  en:
+    name: "English"
+    native_name: "English"
+    tier: 1
+    script: "LATIN"
+    default_locale: "en-US"
+    allowed_locales: ["en-US", "en-GB", "en-IN", "en-AU", "en-NG"]
+    stt_primary: "deepgram"
+    stt_fallback: "whisper"
+    tts_primary: "cartesia"
+    tts_voice: "en-US-JennyNeural"
+    min_silence_ms: 450
+
+  hi:
+    name: "Hindi"
+    native_name: "हिन्दी"
+    tier: 1
+    script: "DEVANAGARI"
+    default_locale: "hi-IN"
+    allowed_locales: ["hi-IN"]
+    code_switch_with: ["en"]
+    stt_primary: "deepgram"
+    stt_fallback: "azure"
+    tts_primary: "elevenlabs"
+    tts_voice: "hi-IN-SwaraNeural"
+    min_silence_ms: 500
+
+  es:
+    name: "Spanish"
+    native_name: "Español"
+    tier: 1
+    script: "LATIN"
+    default_locale: "es-ES"
+    allowed_locales: ["es-ES", "es-MX", "es-AR", "es-CO"]
+    code_switch_with: ["en"]
+    stt_primary: "deepgram"
+    stt_fallback: "azure"
+    tts_primary: "cartesia"
+    tts_voice: "es-ES-ElviraNeural"
+    min_silence_ms: 450
+
+  fr:
+    name: "French"
+    native_name: "Français"
+    tier: 1
+    script: "LATIN"
+    default_locale: "fr-FR"
+    allowed_locales: ["fr-FR", "fr-CA"]
+    stt_primary: "deepgram"
+    stt_fallback: "azure"
+    tts_primary: "cartesia"
+    tts_voice: "fr-FR-DeniseNeural"
+    min_silence_ms: 500
+
+  de:
+    name: "German"
+    native_name: "Deutsch"
+    tier: 1
+    script: "LATIN"
+    default_locale: "de-DE"
+    allowed_locales: ["de-DE"]
+    stt_primary: "deepgram"
+    stt_fallback: "azure"
+    tts_primary: "cartesia"
+    tts_voice: "de-DE-KatjaNeural"
+    min_silence_ms: 550
+
+  ar:
+    name: "Arabic"
+    native_name: "العربية"
+    tier: 2
+    script: "ARABIC"
+    rtl: true
+    default_locale: "ar-EG"
+    allowed_locales: ["ar-EG", "ar-SA", "ar-AE"]
+    code_switch_with: ["en", "fr"]
+    stt_primary: "azure"
+    stt_fallback: "google"
+    tts_primary: "azure"
+    tts_voice: "ar-EG-SalmaNeural"
+    min_silence_ms: 600
+
+  ja:
+    name: "Japanese"
+    native_name: "日本語"
+    tier: 2
+    script: "CJK"
+    default_locale: "ja-JP"
+    allowed_locales: ["ja-JP"]
+    stt_primary: "azure"
+    stt_fallback: "whisper"
+    tts_primary: "azure"
+    tts_voice: "ja-JP-NanamiNeural"
+    min_silence_ms: 650
+
+  zh:
+    name: "Mandarin Chinese"
+    native_name: "中文"
+    tier: 2
+    script: "CJK"
+    default_locale: "zh-CN"
+    allowed_locales: ["zh-CN", "zh-TW"]
+    stt_primary: "azure"
+    stt_fallback: "google"
+    tts_primary: "azure"
+    tts_voice: "zh-CN-XiaoxiaoNeural"
+    min_silence_ms: 500
+
+  ta:
+    name: "Tamil"
+    native_name: "தமிழ்"
+    tier: 2
+    script: "TAMIL"
+    default_locale: "ta-IN"
+    allowed_locales: ["ta-IN", "ta-LK"]
+    code_switch_with: ["en"]
+    stt_primary: "azure"
+    stt_fallback: "indicconformer"
+    tts_primary: "azure"
+    tts_voice: "ta-IN-PallaviNeural"
+    min_silence_ms: 550
+
+  te:
+    name: "Telugu"
+    native_name: "తెలుగు"
+    tier: 2
+    script: "TELUGU"
+    default_locale: "te-IN"
+    allowed_locales: ["te-IN"]
+    code_switch_with: ["en"]
+    stt_primary: "azure"
+    stt_fallback: "indicconformer"
+    tts_primary: "azure"
+    tts_voice: "te-IN-ShrutiNeural"
+    min_silence_ms: 550
+
+  bn:
+    name: "Bengali"
+    native_name: "বাংলা"
+    tier: 2
+    script: "BENGALI"
+    default_locale: "bn-IN"
+    allowed_locales: ["bn-IN", "bn-BD"]
+    code_switch_with: ["en"]
+    stt_primary: "azure"
+    stt_fallback: "indicconformer"
+    tts_primary: "azure"
+    tts_voice: "bn-IN-TanishaaNeural"
+    min_silence_ms: 550
+
+  sw:
+    name: "Swahili"
+    native_name: "Kiswahili"
+    tier: 3
+    script: "LATIN"
+    default_locale: "sw-KE"
+    allowed_locales: ["sw-KE", "sw-TZ"]
+    stt_primary: "google"
+    stt_fallback: "mms"
+    tts_primary: "google"
+    tts_voice: "sw-KE-Standard-A"
+    min_silence_ms: 600
+    confidence_gate: true

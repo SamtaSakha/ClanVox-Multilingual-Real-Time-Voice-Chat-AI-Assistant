@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClanVox — Multilingual Real-Time Voice & Chat AI Assistant</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo-icon">🌍</div>
+        <div>
+          <h1>ClanVox <span class="badge">Realtime v2</span></h1>
+          <p class="subtitle">Multilingual Real-Time Voice & Chat Assistant</p>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <div class="control-group">
+          <label for="languageSelect">Language:</label>
+          <select id="languageSelect">
+            <option value="auto">🌐 Auto-Detect</option>
+            <option value="en">🇺🇸 English</option>
+            <option value="hi">🇮🇳 हिन्दी (Hindi / Hinglish)</option>
+            <option value="es">🇪🇸 Español</option>
+            <option value="es-AR">🇦🇷 Español (Argentina)</option>
+            <option value="fr">🇫🇷 Français</option>
+            <option value="de">🇩🇪 Deutsch</option>
+            <option value="ar">🇪🇬 العربية (Arabic)</option>
+            <option value="ja">🇯🇵 日本語 (Japanese)</option>
+            <option value="ta">🇮🇳 தமிழ் (Tamil)</option>
+          </select>
+        </div>
+
+        <div class="status-indicator" id="statusBadge">
+          <span class="status-dot"></span>
+          <span id="statusText">Disconnected</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="main-grid">
+      <!-- Voice Panel -->
+      <section class="voice-card">
+        <div class="voice-card-header">
+          <h2>Voice Interaction</h2>
+          <span id="turnState" class="state-pill idle">IDLE</span>
+        </div>
+
+        <div class="visualizer-container">
+          <canvas id="waveformCanvas" width="500" height="120"></canvas>
+          <div id="visualizerHint" class="visualizer-hint">Tap microphone to begin speaking</div>
+        </div>
+
+        <div class="voice-controls">
+          <button id="micBtn" class="mic-button" title="Start talking">
+            <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+              <line x1="12" y1="19" x2="12" y2="22"></line>
+            </svg>
+          </button>
+
+          <button id="interruptBtn" class="interrupt-button" title="Interrupt AI Speaking" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="6" y="6" width="12" height="12"></rect>
+            </svg>
+            Barge-in
+          </button>
+        </div>
+
+        <div class="voice-meta">
+          <div class="meta-item">
+            <span class="meta-label">Matrix Language</span>
+            <span id="matrixLangBadge" class="meta-value">-</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Code-Switching</span>
+            <span id="codeSwitchBadge" class="meta-value">Inactive</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">p50 Latency</span>
+            <span id="latencyBadge" class="meta-value">-- ms</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Chat & Transcript Panel -->
+      <section class="chat-card">
+        <div class="chat-header">
+          <h2>Live Conversation</h2>
+          <button id="clearChatBtn" class="btn-text">Clear</button>
+        </div>
+
+        <div class="transcript-box" id="transcriptBox">
+          <div class="message assistant">
+            <div class="msg-meta">
+              <span class="sender-name">ClanVox</span>
+              <span class="msg-lang">en</span>
+            </div>
+            <div class="msg-content">
+              Hello! I am ClanVox. You can talk to me in English, हिन्दी, Hinglish, Español, Français, or any supported language!
+            </div>
+          </div>
+        </div>
+
+        <form id="chatForm" class="chat-input-row">
+          <input type="text" id="chatInput" placeholder="Type a message in any language or slang..." autocomplete="off">
+          <button type="submit" id="sendBtn" class="btn-primary">Send</button>
+        </form>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <span>ClanVox Real-Time AI Core</span>
+      <span>Ultra-Low-Latency • Code-Switching Engine • Cultural Context KB</span>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

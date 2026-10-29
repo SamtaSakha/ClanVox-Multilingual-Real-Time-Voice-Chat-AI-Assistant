@@ -1,0 +1,68 @@
+# ClanVox Locales & Dialects Configuration (Gap 2)
+# Defines dialect profiles, formality rules, pronoun systems, and cultural lexicons
+
+locales:
+  en-US:
+    base_language: en
+    region: "United States"
+    default_formality: informal
+    pronoun_system: standard
+    stt: { primary: deepgram, model: "nova-3" }
+    tts: { voice: "en-US-JennyNeural" }
+
+  en-IN:
+    base_language: en
+    region: "India"
+    default_formality: polite
+    pronoun_system: standard
+    allow_code_switch: ["hi"]
+    stt: { primary: deepgram, model: "nova-3" }
+    tts: { voice: "en-IN-NeerjaNeural" }
+    slang_lexicon: "config/culture/en-IN/slang.jsonl"
+    exemplars: "config/culture/en-IN/exemplars.jsonl"
+
+  hi-IN:
+    base_language: hi
+    region: "India (North/Central)"
+    allow_code_switch: ["en"]
+    default_formality: neutral_polite   # "आप" by default
+    script_preference: devanagari
+    stt: { primary: deepgram, model: "nova-3" }
+    tts: { voice: "hi-IN-SwaraNeural" }
+    slang_lexicon: "config/culture/hi-IN/slang.jsonl"
+    exemplars: "config/culture/hi-IN/exemplars.jsonl"
+
+  es-AR:
+    base_language: es
+    region: "Argentina (Rioplatense)"
+    pronoun_system: vos                 # "vos tenés" not "tú tienes"
+    default_formality: informal
+    stt: { primary: google, custom_vocab: "vocab/es-AR.txt" }
+    tts: { voice: "es-AR-ElenaNeural" }
+    slang_lexicon: "config/culture/es-AR/slang.jsonl"
+    exemplars: "config/culture/es-AR/exemplars.jsonl"
+
+  es-MX:
+    base_language: es
+    region: "Mexico"
+    pronoun_system: tu
+    default_formality: informal
+    stt: { primary: azure }
+    tts: { voice: "es-MX-DaliaNeural" }
+
+  ar-EG:
+    base_language: ar
+    region: "Egypt (Cairo)"
+    spoken_variety: egyptian_colloquial  # reply in dialect, not MSA
+    default_formality: informal
+    stt: { primary: azure }
+    tts: { voice: "ar-EG-SalmaNeural" }
+    slang_lexicon: "config/culture/ar-EG/slang.jsonl"
+    exemplars: "config/culture/ar-EG/exemplars.jsonl"
+
+  ja-JP:
+    base_language: ja
+    region: "Japan"
+    default_formality: formal           # teineigo/keigo (です・ます)
+    stt: { primary: azure }
+    tts: { voice: "ja-JP-NanamiNeural" }

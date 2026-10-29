@@ -1,0 +1,53 @@
+# ClanVox Models and Providers Configuration
+
+providers:
+  llm:
+    mock:
+      type: mock
+      latency_ms: 100
+    openai:
+      fast_model: "gpt-4o-mini"
+      reasoning_model: "gpt-4o"
+      max_tokens: 300
+      temperature: 0.7
+    anthropic:
+      fast_model: "claude-3-5-haiku-20241022"
+      reasoning_model: "claude-3-5-sonnet-20241022"
+      max_tokens: 300
+      temperature: 0.7
+    gemini:
+      fast_model: "gemini-2.5-flash"
+      reasoning_model: "gemini-2.5-pro"
+      max_tokens: 300
+      temperature: 0.7
+
+  stt:
+    mock:
+      type: mock
+    deepgram:
+      model: "nova-3"
+      punctuate: true
+      smart_format: true
+      language_detection: true
+    azure:
+      continuous_lid: true
+    whisper:
+      model_size: "turbo"
+
+  tts:
+    mock:
+      type: mock
+    cartesia:
+      model: "sonic-multilingual"
+      encoding: "pcm_16000"
+    elevenlabs:
+      model: "eleven_multilingual_v2"
+    azure:
+      audio_format: "raw-16khz-16bit-mono-pcm"
+
+routing:
+  default_llm: mock
+  default_stt: mock
+  default_tts: mock
+  fallback_stt: mock
+  fallback_tts: mock

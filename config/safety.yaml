@@ -1,0 +1,40 @@
+# ClanVox Safety, Moderation & Guardrails Configuration
+
+moderation:
+  enabled: true
+  categories:
+    - hate_speech
+    - harassment
+    - self_harm
+    - sexual_content
+    - dangerous_activities
+  action_on_violation: "block_and_refer"
+
+pii_redaction:
+  enabled: true
+  entities:
+    - PHONE_NUMBER
+    - EMAIL_ADDRESS
+    - CREDIT_CARD
+    - US_SSN
+    - INDIA_AADHAAR
+    - IP_ADDRESS
+
+emergency_helplines:
+  en-US:
+    mental_health: "988 (Suicide & Crisis Lifeline)"
+    emergency: "911"
+  hi-IN:
+    mental_health: "KIRAN helpline: 1800-599-0019 / Vandrevala: 9999 666 555"
+    emergency: "112"
+  es-AR:
+    mental_health: "Línea 135 (Centro de Asistencia al Suicida)"
+    emergency: "911"
+
+prompt_injection_guard:
+  enabled: true
+  forbidden_patterns:
+    - "ignore all previous instructions"
+    - "reveal system prompt"
+    - "system bypass"
+    - "switch to developer mode"
