@@ -1,0 +1,42 @@
+# =====================================================================
+# PolyVoice - development, testing & evaluation tools
+# Install:  pip install -r requirements.txt -r requirements-dev.txt
+# =====================================================================
+
+# ---------- Testing ----------
+pytest>=8.0
+pytest-asyncio>=0.23
+pytest-cov>=5.0
+pytest-xdist>=3.5
+respx>=0.21              # mock httpx calls to providers
+faker>=24.0
+freezegun>=1.5
+testcontainers>=4.4      # throwaway Postgres/Redis in tests
+
+# ---------- Load & latency testing ----------
+locust>=2.26
+
+# ---------- Code quality ----------
+ruff>=0.4
+black>=24.3
+mypy>=1.10
+types-PyYAML
+types-redis
+pre-commit>=3.7
+
+# ---------- Evaluation (quality metrics per language) ----------
+jiwer>=3.0               # WER / CER
+sacrebleu>=2.4           # chrF++ / BLEU
+unbabel-comet>=2.2       # COMET translation quality
+evaluate>=0.4
+datasets>=2.19           # FLEURS, Common Voice, IndicVoices, code-mixed sets
+pandas>=2.2
+matplotlib>=3.8
+
+# ---------- Local audio testing ----------
+sounddevice>=0.4         # mic / speaker for local experiments
+pyaudio>=0.2.14
+
+# ---------- Docs ----------
+mkdocs>=1.6
+mkdocs-material>=9.5

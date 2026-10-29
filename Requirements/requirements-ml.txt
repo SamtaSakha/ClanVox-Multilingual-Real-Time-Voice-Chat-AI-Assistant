@@ -1,0 +1,55 @@
+# =====================================================================
+# PolyVoice - self-hosted ML stack (GPU recommended)
+# Use for: self-hosted STT/TTS/LLM, dialect/emotion models, fine-tuning
+# Install:  pip install -r requirements.txt -r requirements-ml.txt
+# Install the CUDA build of torch that matches your driver first, e.g.:
+#   pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu121
+# =====================================================================
+
+# ---------- Core deep learning ----------
+torch>=2.2
+torchaudio>=2.2
+transformers>=4.40
+accelerate>=0.30
+safetensors>=0.4
+sentencepiece>=0.2
+tokenizers>=0.19
+huggingface-hub>=0.23
+datasets>=2.19
+bitsandbytes>=0.43       # 4/8-bit quantisation (Linux + CUDA)
+optimum>=1.20
+
+# ---------- Speech recognition (STT) ----------
+faster-whisper>=1.0      # Whisper large-v3 / turbo via CTranslate2
+ctranslate2>=4.2
+# whisper.cpp is built separately (C++), see its repo
+speechbrain>=1.0         # LID, emotion recognition, speaker models
+funasr>=1.1              # optional: emotion2vec-style speech emotion models
+
+# ---------- Text-to-speech (TTS) ----------
+coqui-tts>=0.24          # maintained fork; XTTS-v2 (check licence terms)
+# Indic Parler-TTS loads via transformers + parler-tts:
+# parler-tts @ git+https://github.com/huggingface/parler-tts.git
+# kokoro>=0.7              # lightweight multilingual TTS (optional)
+
+# ---------- Translation (low-resource, interpreter mode) ----------
+# NLLB-200 and MADLAD load via transformers
+# IndicTrans2 (AI4Bharat):
+# IndicTransToolkit @ git+https://github.com/VarunGumma/IndicTransToolkit.git
+sacremoses>=0.1
+sacrebleu>=2.4
+
+# ---------- LLM serving (self-hosted) ----------
+vllm>=0.5                # high-throughput inference server (Linux + CUDA)
+# peft/trl for LoRA + DPO fine-tuning
+peft>=0.11
+trl>=0.9
+
+# ---------- Fine-tuning ASR / dialect adapters ----------
+evaluate>=0.4
+jiwer>=3.0
+# wandb>=0.17              # experiment tracking (optional)
+# mlflow>=2.13             # alternative experiment tracking
+
+# ---------- Serving utilities ----------
+onnxruntime-gpu>=1.18    # export small models (VAD/LID/emotion) for fast serving

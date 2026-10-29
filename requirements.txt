@@ -1,0 +1,119 @@
+# =====================================================================
+# PolyVoice - core runtime requirements
+# Python 3.11+
+# Version floors are minimums; before production, lock exact versions:
+#   pip install pip-tools && pip-compile requirements.txt -o requirements.lock
+# Install:  pip install -r requirements.txt
+# Optional self-hosted ML models: requirements-ml.txt
+# Dev / test / eval tools:        requirements-dev.txt
+# =====================================================================
+
+# ---------- Web framework & networking ----------
+fastapi>=0.110
+uvicorn[standard]>=0.29
+gunicorn>=22.0
+pydantic>=2.6
+pydantic-settings>=2.2
+python-dotenv>=1.0
+websockets>=12.0
+httpx>=0.27
+aiohttp>=3.9
+orjson>=3.10
+pyyaml>=6.0
+tenacity>=8.2
+anyio>=4.3
+python-multipart>=0.0.9
+cachetools>=5.3
+
+# ---------- Realtime media & agent framework (LiveKit) ----------
+livekit>=0.17
+livekit-api>=0.6
+livekit-agents>=1.0
+livekit-plugins-silero>=1.0          # VAD
+livekit-plugins-turn-detector>=1.0   # semantic end-of-turn
+livekit-plugins-deepgram>=1.0
+livekit-plugins-cartesia>=1.0
+livekit-plugins-elevenlabs>=1.0
+livekit-plugins-azure>=1.0
+livekit-plugins-google>=1.0
+livekit-plugins-openai>=1.0
+# livekit-plugins-noise-cancellation>=0.2   # optional, requires LiveKit Cloud
+# pipecat-ai>=0.0.50                        # alternative to LiveKit Agents
+
+# ---------- Speech vendors (STT / TTS SDKs) ----------
+deepgram-sdk>=3.2
+azure-cognitiveservices-speech>=1.37
+google-cloud-speech>=2.26
+google-cloud-texttospeech>=2.16
+elevenlabs>=1.0
+cartesia>=1.0
+
+# ---------- LLM providers ----------
+anthropic>=0.40
+openai>=1.30
+google-genai>=0.3
+tiktoken>=0.7
+
+# ---------- Audio processing ----------
+numpy>=1.26
+scipy>=1.12
+soundfile>=0.12
+librosa>=0.10
+pydub>=0.25
+av>=12.0                 # PyAV: Opus/PCM encode-decode, resampling
+silero-vad>=5.1
+
+# ---------- Language, text & script handling ----------
+fasttext-wheel>=0.9.2    # lid.176 language ID (text)
+lingua-language-detector>=2.0
+regex>=2024.4
+babel>=2.14              # locale formatting (dates, numbers, currency)
+pycountry>=23.12
+num2words>=0.5.13        # number -> spoken words for TTS normalisation
+emoji>=2.11
+indic-transliteration>=2.3
+indic-nlp-library>=0.92
+pykakasi>=2.2            # Japanese reading/romaji
+jieba>=0.42              # Chinese word segmentation
+pythainlp>=5.0           # Thai (no spaces) segmentation
+pypinyin>=0.51
+rapidfuzz>=3.6           # fuzzy matching for glossaries / slang lexicon
+
+# ---------- Data stores ----------
+sqlalchemy[asyncio]>=2.0
+asyncpg>=0.29
+alembic>=1.13
+pgvector>=0.2
+redis>=5.0
+boto3>=1.34              # S3 / MinIO object storage
+arq>=0.26                # async job queue (Redis)
+aiokafka>=0.10           # event pipeline at scale (optional)
+
+# ---------- RAG & embeddings ----------
+sentence-transformers>=3.0
+FlagEmbedding>=1.2       # BGE-M3 multilingual embeddings / reranker
+pypdf>=4.0
+python-docx>=1.1
+pymupdf>=1.24
+
+# ---------- Security, privacy & safety ----------
+pyjwt>=2.8
+passlib[bcrypt]>=1.7
+cryptography>=42.0
+slowapi>=0.1.9           # rate limiting
+presidio-analyzer>=2.2   # PII detection
+presidio-anonymizer>=2.2
+
+# ---------- Observability ----------
+opentelemetry-api>=1.24
+opentelemetry-sdk>=1.24
+opentelemetry-exporter-otlp>=1.24
+opentelemetry-instrumentation-fastapi>=0.45b0
+prometheus-client>=0.20
+structlog>=24.1
+sentry-sdk[fastapi]>=2.0
+langfuse>=2.30           # LLM tracing / evals
+
+# ---------- Optional: lightweight self-hosted fallbacks (CPU) ----------
+# faster-whisper>=1.0          # self-hosted STT (see requirements-ml.txt for GPU stack)
+# piper-tts>=1.2               # offline / low-bandwidth TTS fallback
