@@ -32,3 +32,4 @@ def test_websocket_realtime_turn():
 
         assert "stt.final" in received_types
         assert "llm.delta" in received_types
+

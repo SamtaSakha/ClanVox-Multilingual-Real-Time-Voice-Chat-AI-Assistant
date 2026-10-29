@@ -71,3 +71,4 @@ languages_registry: Dict[str, Any] = load_yaml(CONFIG_DIR / "languages.yaml").ge
 locales_registry: Dict[str, Any] = load_yaml(CONFIG_DIR / "locales.yaml").get("locales", {})
 models_config: Dict[str, Any] = load_yaml(CONFIG_DIR / "models.yaml")
 safety_config: Dict[str, Any] = load_yaml(CONFIG_DIR / "safety.yaml")
+

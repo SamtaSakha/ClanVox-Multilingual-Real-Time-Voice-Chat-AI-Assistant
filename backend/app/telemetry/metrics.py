@@ -41,3 +41,4 @@ class TelemetryTracker:
         self.error_count += 1
 
 telemetry = TelemetryTracker()
+

@@ -30,3 +30,4 @@ class ModerationService:
         return True, "safe", {}
 
 moderation_service = ModerationService()
+

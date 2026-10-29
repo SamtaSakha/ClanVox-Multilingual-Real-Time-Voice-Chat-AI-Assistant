@@ -38,3 +38,4 @@ class OpenAILLMProvider(LLMProvider):
             delta = chunk.choices[0].delta
             if delta.content:
                 yield {"type": "text", "text": delta.content}
+

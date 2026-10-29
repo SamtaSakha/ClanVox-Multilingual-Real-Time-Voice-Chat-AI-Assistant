@@ -109,3 +109,4 @@ def is_code_switched(spans: List[Span]) -> bool:
     """Check if utterance contains words from more than one distinct language."""
     langs = {sp.lang for sp in spans if sp.lang and sp.lang != "COMMON"}
     return len(langs) > 1
+

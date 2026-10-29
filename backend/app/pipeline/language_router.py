@@ -38,3 +38,4 @@ class LanguageRouter:
 
     def get_config(self, lang: str) -> Dict[str, Any]:
         return self.registry.get(lang, self.registry.get("en", {}))
+

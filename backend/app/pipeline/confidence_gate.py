@@ -37,3 +37,4 @@ class ConfidenceGate:
         elif action == "offer_alternative":
             return "I am having trouble processing the audio. You may type your message or switch to a supported dialect."
         return ""
+

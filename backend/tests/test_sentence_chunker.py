@@ -28,3 +28,4 @@ async def test_chunk_sentences_hindi_purna_viram():
     assert len(chunks) == 2
     assert "परीक्षण है।" in chunks[0]
     assert "यहाँ है।" in chunks[1]
+

@@ -29,3 +29,4 @@ class VoiceActivityDetector:
         self.speech_frames = 0
         self.silence_frames = 0
         self.is_speaking = False
+

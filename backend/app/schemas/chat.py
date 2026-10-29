@@ -23,3 +23,4 @@ class ChatResponse(BaseModel):
     detected_code_switch: bool = False
     matrix_language: Optional[str] = None
     latency_ms: int = 0
+

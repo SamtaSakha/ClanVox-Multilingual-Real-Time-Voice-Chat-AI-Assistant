@@ -27,3 +27,4 @@ class DeepgramSTTProvider(STTProvider):
         async for chunk in audio:
             await asyncio.sleep(0.01)
         yield STTResult(text="Processed audio via Deepgram", is_final=True, language=lang_hint or "en", confidence=0.98)
+

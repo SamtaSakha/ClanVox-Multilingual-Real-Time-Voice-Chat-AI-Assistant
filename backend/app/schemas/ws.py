@@ -23,3 +23,4 @@ class WSServerEvent(BaseModel):
     args: Optional[Dict[str, Any]] = None # tool args
     code: Optional[str] = None
     message: Optional[str] = None
+

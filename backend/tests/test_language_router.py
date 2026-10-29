@@ -20,3 +20,4 @@ def test_router_hysteresis_low_confidence():
     # Second turn agrees
     lang2 = router.decide(detected="hi", conf=0.60, previous="en")
     assert lang2 == "hi"
+

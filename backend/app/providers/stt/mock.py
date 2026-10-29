@@ -32,3 +32,4 @@ class MockSTTProvider(STTProvider):
                 language=lang_hint or self.default_lang,
                 confidence=0.96
             )
+

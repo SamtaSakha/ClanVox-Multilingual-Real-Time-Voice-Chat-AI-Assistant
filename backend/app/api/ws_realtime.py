@@ -146,3 +146,4 @@ async def websocket_realtime_endpoint(websocket: WebSocket, session_id: Optional
         await orchestrator.cancel_reply()
         await audio_queue.put(None)
         stt_task.cancel()
+

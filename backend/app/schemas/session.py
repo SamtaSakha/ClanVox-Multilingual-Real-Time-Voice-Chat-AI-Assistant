@@ -25,3 +25,4 @@ class UserPreferences(BaseModel):
     speech_rate: float = 1.0
     consent_recording: bool = False
     formality: str = "auto"
+

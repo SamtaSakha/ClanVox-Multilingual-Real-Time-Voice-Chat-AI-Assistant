@@ -48,3 +48,4 @@ class MockLLMProvider(LLMProvider):
             chunk = word if i == 0 else " " + word
             await asyncio.sleep(self.latency)
             yield {"type": "text", "text": chunk}
+

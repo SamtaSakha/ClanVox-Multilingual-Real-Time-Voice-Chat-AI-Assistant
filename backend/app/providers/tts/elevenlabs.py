@@ -25,3 +25,4 @@ class ElevenLabsTTSProvider(TTSProvider):
         from .mock import MockTTSProvider
         async for audio in MockTTSProvider().stream(text_chunks, lang, voice):
             yield audio
+

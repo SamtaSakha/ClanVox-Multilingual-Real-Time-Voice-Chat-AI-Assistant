@@ -9,3 +9,4 @@
 - English technical and daily terms (phone, ticket, station, meeting, doctor, bill, movie, cancel, refund) are naturally integrated.
 - Grammar frame (verbs and postpositions) remains Hindi (matrix language).
 - Roman script (Latin) is widely used on mobile chat; Devanagari is preferred when requested.
+

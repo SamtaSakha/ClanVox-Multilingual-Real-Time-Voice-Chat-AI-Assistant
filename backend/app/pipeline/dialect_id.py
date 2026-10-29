@@ -26,3 +26,4 @@ class DialectIdentifier:
                     best_locale = locale_code
 
         return best_locale
+

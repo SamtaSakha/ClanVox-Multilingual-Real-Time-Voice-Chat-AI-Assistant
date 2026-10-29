@@ -41,3 +41,4 @@ class TTSProvider(ABC):
     ) -> AsyncIterator[bytes]:
         """Stream audio bytes corresponding to input text chunks."""
         ...
+

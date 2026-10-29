@@ -41,3 +41,4 @@ async def test_chat_endpoint():
         data = res.json()
         assert "reply" in data
         assert data["language"] == "hi"
+

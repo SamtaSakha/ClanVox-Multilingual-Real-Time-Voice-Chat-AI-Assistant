@@ -32,3 +32,4 @@ class ParalinguisticsAnalyzer:
             urgency=urgency,
             frustration=frustration
         )
+

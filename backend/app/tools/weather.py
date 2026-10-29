@@ -33,3 +33,4 @@ async def get_weather(city: str) -> Dict[str, Any]:
         return {"city": city, "temperature_c": 22, "condition": "Clear", "humidity": "50%"}
 
 tool_registry.register("get_weather", WEATHER_SCHEMA, get_weather)
+

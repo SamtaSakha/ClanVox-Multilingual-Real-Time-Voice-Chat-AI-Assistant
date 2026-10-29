@@ -52,3 +52,4 @@ async def list_languages():
 @router.patch("/users/me/preferences")
 async def update_preferences(prefs: UserPreferences):
     return {"status": "updated", "preferences": prefs}
+

@@ -22,3 +22,4 @@ class StyleRenderer:
             else:
                 body += clean + " "
         return f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US"><voice name="{voice}">{body.strip()}</voice></speak>'
+

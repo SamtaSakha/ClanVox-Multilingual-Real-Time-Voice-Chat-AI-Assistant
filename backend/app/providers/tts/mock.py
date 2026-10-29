@@ -33,3 +33,4 @@ class MockTTSProvider(TTSProvider):
                     frame_bytes.extend(struct.pack("<h", sample))
                 await asyncio.sleep(frame_duration)
                 yield bytes(frame_bytes)
+

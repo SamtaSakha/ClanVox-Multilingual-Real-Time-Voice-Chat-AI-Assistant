@@ -66,3 +66,4 @@ locales:
     default_formality: formal           # teineigo/keigo (です・ます)
     stt: { primary: azure }
     tts: { voice: "ja-JP-NanamiNeural" }
+

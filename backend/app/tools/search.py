@@ -32,3 +32,4 @@ async def web_search(query: str) -> Dict[str, Any]:
     }
 
 tool_registry.register("web_search", SEARCH_SCHEMA, web_search)
+

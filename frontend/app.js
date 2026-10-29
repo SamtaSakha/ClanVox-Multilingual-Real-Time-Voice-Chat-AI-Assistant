@@ -382,3 +382,4 @@ clearChatBtn.addEventListener('click', () => {
 window.addEventListener('DOMContentLoaded', () => {
   connectWebSocket();
 });
+

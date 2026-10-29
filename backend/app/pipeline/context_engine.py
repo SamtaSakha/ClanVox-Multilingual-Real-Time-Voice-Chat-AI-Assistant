@@ -58,3 +58,4 @@ class ContextEngine:
                     if line.strip():
                         results.append(json.loads(line))
         return results[:2]
+

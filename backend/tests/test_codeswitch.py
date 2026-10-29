@@ -38,3 +38,4 @@ def test_matrix_language():
     tagged = tag_languages(spans)
     mat = matrix_language(tagged)
     assert mat == "hi"
+

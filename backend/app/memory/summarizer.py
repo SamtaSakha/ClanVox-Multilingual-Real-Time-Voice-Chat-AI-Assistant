@@ -12,3 +12,4 @@ class ConversationSummarizer:
         for msg in history[:-2]:
             summary_points.append(f"{msg.role}: {msg.content[:60]}...")
         return "Previous context: " + " | ".join(summary_points)
+

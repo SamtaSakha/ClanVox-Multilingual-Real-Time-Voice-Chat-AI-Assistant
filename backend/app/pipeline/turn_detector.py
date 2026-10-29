@@ -34,3 +34,4 @@ class SemanticTurnDetector:
 
         # Normal speech turn completion after standard silence threshold
         return silence_ms >= 500
+

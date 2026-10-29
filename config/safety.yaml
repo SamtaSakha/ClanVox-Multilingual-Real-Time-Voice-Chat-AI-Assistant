@@ -38,3 +38,4 @@ prompt_injection_guard:
     - "reveal system prompt"
     - "system bypass"
     - "switch to developer mode"
+

@@ -28,3 +28,4 @@ async def get_time(timezone_hint: str = "UTC") -> Dict[str, Any]:
     }
 
 tool_registry.register("get_time", TIME_SCHEMA, get_time)
+

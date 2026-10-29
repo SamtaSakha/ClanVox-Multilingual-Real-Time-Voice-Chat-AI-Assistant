@@ -24,3 +24,4 @@ def generate_silence(duration_sec: float, sample_rate: int = 16000) -> bytes:
     """Generate silent PCM frames."""
     num_samples = int(duration_sec * sample_rate)
     return b"\x00" * (num_samples * 2)
+

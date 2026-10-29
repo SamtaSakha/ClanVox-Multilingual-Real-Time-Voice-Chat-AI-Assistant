@@ -19,3 +19,4 @@ async def login(credentials: LoginRequest):
     user_id = credentials.username or "demo_user"
     token = create_access_token({"sub": user_id})
     return TokenResponse(access_token=token, user_id=user_id)
+

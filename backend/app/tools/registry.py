@@ -25,3 +25,4 @@ class ToolRegistry:
             return {"error": str(e)}
 
 tool_registry = ToolRegistry()
+
