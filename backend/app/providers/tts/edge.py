@@ -46,3 +46,4 @@ class EdgeTTSProvider(TTSProvider):
                     yield clean_text
                 async for audio_bytes in MockTTSProvider().stream(fallback_stream(), lang, voice=target_voice):
                     yield audio_bytes
+

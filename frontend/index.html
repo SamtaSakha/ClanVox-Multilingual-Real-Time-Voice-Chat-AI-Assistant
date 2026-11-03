@@ -41,6 +41,20 @@
           </select>
         </div>
 
+        <div class="control-group persona-group">
+          <label>AI Voice:</label>
+          <div class="persona-switch" role="radiogroup" aria-label="Select AI Voice Assistant">
+            <button type="button" class="persona-btn active" id="btnFemale" data-gender="female" title="Female AI Assistant (Aria / Swara) - Default">
+              <span class="persona-emoji">👩</span>
+              <span class="persona-text">Female <span class="tag-default">Default</span></span>
+            </button>
+            <button type="button" class="persona-btn" id="btnMale" data-gender="male" title="Male AI Assistant (Leo / Aarav)">
+              <span class="persona-emoji">👨</span>
+              <span class="persona-text">Male</span>
+            </button>
+          </div>
+        </div>
+
         <div class="status-indicator" id="statusBadge">
           <span class="status-dot"></span>
           <span id="statusText">Disconnected</span>
@@ -80,6 +94,10 @@
         </div>
 
         <div class="voice-meta">
+          <div class="meta-item">
+            <span class="meta-label">AI Assistant</span>
+            <span id="activePersonaBadge" class="meta-value">👩 Female (Aria)</span>
+          </div>
           <div class="meta-item">
             <span class="meta-label">Matrix Language</span>
             <span id="matrixLangBadge" class="meta-value">-</span>

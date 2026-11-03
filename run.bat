@@ -30,8 +30,8 @@ echo       CLANVOX - MULTILINGUAL REAL-TIME VOICE ^& CHAT SUITE
 echo ===================================================================
 echo.
 echo  --- SERVERS ^& USER INTERFACES ---
-echo   1. Launch ClanVox API ^& Web Server (FastAPI + WebSockets + UI)
-echo   2. Open Web Browser Interface (http://localhost:8000/app)
+echo   1. Start ClanVox Server ^& Open Web App (Recommended)
+echo   2. Open Web Browser App (http://localhost:8000/)
 echo   3. Launch Docker Compose Stack (LiveKit, Redis, Postgres/pgvector)
 echo.
 echo  --- VOICE AGENT ^& PIPELINES ---
@@ -84,8 +84,9 @@ goto menu
 :run_api_server
 echo.
 echo [SERVER] Starting ClanVox API and Realtime Gateway on http://localhost:8000...
-echo [INFO] Web UI available at: http://localhost:8000/app
-echo [INFO] Press Ctrl+C to stop the server.
+echo [INFO] Automatically opening Web UI in browser in 2 seconds...
+start "" cmd /c "timeout /t 2 /nobreak >nul & start http://localhost:8000/"
+echo [INFO] Press Ctrl+C in this window to stop the server.
 echo.
 .venv\Scripts\python.exe -m uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
 pause
@@ -93,8 +94,15 @@ goto menu
 
 :open_browser
 echo.
+echo [CHECK] Verifying if server is active on port 8000...
+powershell -Command "try { $c = [System.Net.Sockets.TcpClient]::new('127.0.0.1', 8000); $c.Close(); exit 0 } catch { exit 1 }"
+if errorlevel 1 (
+    echo [INFO] Server is not running yet. Starting server in a separate window...
+    start "ClanVox Server" cmd /k "cd /d \"%~dp0\" & .venv\Scripts\python.exe -m uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000"
+    timeout /t 2 /nobreak >nul
+)
 echo [BROWSER] Opening ClanVox UI in default browser...
-start http://localhost:8000/app
+start http://localhost:8000/
 goto menu
 
 :run_docker

@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from .core.config import settings
@@ -54,8 +55,31 @@ async def health_check():
         "default_language": settings.DEFAULT_LANGUAGE
     }
 
-# Mount static web frontend if available
+# Frontend Web Application Serving
 frontend_dir = Path(__file__).resolve().parent.parent.parent / "frontend"
+index_file = frontend_dir / "index.html"
+
+@app.api_route("/", methods=["GET", "HEAD"], include_in_schema=False)
+async def serve_root_ui():
+    if index_file.exists():
+        return FileResponse(str(index_file))
+    return {"message": "ClanVox API is running. Open /docs for Swagger UI."}
+
+@app.api_route("/style.css", methods=["GET", "HEAD"], include_in_schema=False)
+async def serve_css():
+    css_file = frontend_dir / "style.css"
+    if css_file.exists():
+        return FileResponse(str(css_file), media_type="text/css")
+    return Response(status_code=404)
+
+@app.api_route("/app.js", methods=["GET", "HEAD"], include_in_schema=False)
+async def serve_js():
+    js_file = frontend_dir / "app.js"
+    if js_file.exists():
+        return FileResponse(str(js_file), media_type="application/javascript")
+    return Response(status_code=404)
+
 if frontend_dir.exists():
     app.mount("/app", StaticFiles(directory=str(frontend_dir), html=True), name="frontend")
+
 

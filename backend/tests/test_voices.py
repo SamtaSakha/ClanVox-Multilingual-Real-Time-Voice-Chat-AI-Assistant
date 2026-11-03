@@ -51,3 +51,4 @@ def test_resolve_voice_user_preferred_male():
 def test_session_create_default_gender():
     mem = SessionMemory("test_voice_3")
     assert mem.preferences.voice_gender == "female"
+
