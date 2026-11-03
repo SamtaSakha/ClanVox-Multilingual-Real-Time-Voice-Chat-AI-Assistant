@@ -12,7 +12,8 @@ async def create_session(req: SessionCreate):
     session_id = str(uuid.uuid4())
     lang = req.initial_language or settings.DEFAULT_LANGUAGE
     locale = req.locale or settings.DEFAULT_LOCALE
-    mem = session_store.create(session_id, lang=lang, locale=locale, mode=req.mode)
+    gender = (req.voice_gender or settings.DEFAULT_VOICE_GENDER).lower()
+    mem = session_store.create(session_id, lang=lang, locale=locale, mode=req.mode, voice_gender=gender)
 
     # Optional LiveKit token creation
     livekit_token = f"dev-token-{session_id}"
@@ -22,6 +23,7 @@ async def create_session(req: SessionCreate):
         mode=req.mode,
         language=lang,
         locale=locale,
+        voice_gender=gender,
         livekit_token=livekit_token,
         livekit_url=settings.LIVEKIT_URL,
         created_at=mem.created_at
@@ -37,6 +39,8 @@ async def get_session(session_id: str):
         "language": mem.current_lang,
         "locale": mem.locale,
         "mode": mem.mode,
+        "voice_gender": mem.preferences.voice_gender,
+        "voice_id": mem.preferences.voice_id,
         "history": [msg.model_dump() for msg in mem.history],
         "created_at": mem.created_at,
         "summary": mem.summary

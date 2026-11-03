@@ -4,13 +4,13 @@ from ..schemas.chat import ChatMessage
 from ..schemas.session import SessionResponse, UserPreferences
 
 class SessionMemory:
-    def __init__(self, session_id: str, initial_lang: str = "en", locale: str = "en-US", mode: str = "voice"):
+    def __init__(self, session_id: str, initial_lang: str = "en", locale: str = "en-US", mode: str = "voice", voice_gender: str = "female"):
         self.session_id = session_id
         self.current_lang = initial_lang
         self.locale = locale
         self.mode = mode
         self.history: List[ChatMessage] = []
-        self.preferences = UserPreferences(preferred_lang=initial_lang, preferred_locale=locale)
+        self.preferences = UserPreferences(preferred_lang=initial_lang, preferred_locale=locale, voice_gender=voice_gender)
         self.summary: str = ""
         self.created_at = datetime.now(timezone.utc)
         self.last_interaction = datetime.now(timezone.utc)
@@ -34,17 +34,17 @@ class SessionStore:
     def __init__(self):
         self._sessions: Dict[str, SessionMemory] = {}
 
-    def create(self, session_id: str, lang: str = "en", locale: str = "en-US", mode: str = "voice") -> SessionMemory:
-        mem = SessionMemory(session_id, initial_lang=lang, locale=locale, mode=mode)
+    def create(self, session_id: str, lang: str = "en", locale: str = "en-US", mode: str = "voice", voice_gender: str = "female") -> SessionMemory:
+        mem = SessionMemory(session_id, initial_lang=lang, locale=locale, mode=mode, voice_gender=voice_gender)
         self._sessions[session_id] = mem
         return mem
 
     def get(self, session_id: str) -> Optional[SessionMemory]:
         return self._sessions.get(session_id)
 
-    def get_or_create(self, session_id: str, lang: str = "en", locale: str = "en-US", mode: str = "voice") -> SessionMemory:
+    def get_or_create(self, session_id: str, lang: str = "en", locale: str = "en-US", mode: str = "voice", voice_gender: str = "female") -> SessionMemory:
         if session_id not in self._sessions:
-            return self.create(session_id, lang, locale, mode)
+            return self.create(session_id, lang, locale, mode, voice_gender=voice_gender)
         return self._sessions[session_id]
 
     def remove(self, session_id: str):

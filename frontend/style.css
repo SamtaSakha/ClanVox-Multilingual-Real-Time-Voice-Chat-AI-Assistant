@@ -112,6 +112,63 @@ select {
   cursor: pointer;
 }
 
+/* Persona Switcher */
+.persona-switch {
+  display: flex;
+  background: #0f172a;
+  padding: 3px;
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  gap: 4px;
+}
+
+.persona-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid transparent;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.persona-btn:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.persona-btn.active {
+  background: linear-gradient(135deg, var(--primary), #6366f1);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 0 14px var(--primary-glow);
+}
+
+.persona-btn[data-gender="female"].active {
+  background: linear-gradient(135deg, #ec4899, #8b5cf6);
+  box-shadow: 0 0 14px rgba(236, 72, 153, 0.4);
+}
+
+.persona-btn[data-gender="male"].active {
+  background: linear-gradient(135deg, #0284c7, #4f46e5);
+  box-shadow: 0 0 14px rgba(2, 132, 199, 0.4);
+}
+
+.tag-default {
+  font-size: 9px;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 1px 5px;
+  border-radius: 10px;
+  letter-spacing: 0.3px;
+}
+
 .status-indicator {
   display: flex;
   align-items: center;
@@ -293,12 +350,18 @@ canvas {
 /* Voice Meta Badges */
 .voice-meta {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
   background: #090e1a;
   padding: 14px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@media (max-width: 600px) {
+  .voice-meta {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .meta-item {

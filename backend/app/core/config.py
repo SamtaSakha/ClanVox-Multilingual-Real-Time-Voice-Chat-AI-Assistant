@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     # Language & Locales
     DEFAULT_LANGUAGE: str = "en"
     DEFAULT_LOCALE: str = "en-US"
+    DEFAULT_VOICE_GENDER: str = "female"
     FALLBACK_LANGUAGE: str = "en"
     CONFIDENCE_THRESHOLD_HIGH: float = 0.80
     CONFIDENCE_THRESHOLD_LOW: float = 0.50
@@ -32,7 +33,7 @@ class Settings(BaseSettings):
     # Providers
     LLM_PROVIDER: str = "mock"
     STT_PROVIDER: str = "mock"
-    TTS_PROVIDER: str = "mock"
+    TTS_PROVIDER: str = "edge"
 
     # API Keys
     OPENAI_API_KEY: Optional[str] = None

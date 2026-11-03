@@ -7,6 +7,7 @@ class SessionCreate(BaseModel):
     mode: str = Field(default="voice", pattern="^(voice|chat|interpreter)$")
     initial_language: Optional[str] = "en"
     locale: Optional[str] = "en-US"
+    voice_gender: Optional[str] = "female"
 
 class SessionResponse(BaseModel):
     session_id: str
@@ -14,6 +15,7 @@ class SessionResponse(BaseModel):
     mode: str
     language: str
     locale: str
+    voice_gender: str = "female"
     livekit_token: Optional[str] = None
     livekit_url: Optional[str] = None
     created_at: datetime
@@ -21,6 +23,7 @@ class SessionResponse(BaseModel):
 class UserPreferences(BaseModel):
     preferred_lang: str = "en"
     preferred_locale: str = "en-US"
+    voice_gender: str = "female"
     voice_id: str = "en-US-JennyNeural"
     speech_rate: float = 1.0
     consent_recording: bool = False

@@ -7,8 +7,12 @@ let audioProcessor = null;
 let isRecording = false;
 let audioQueue = [];
 let isPlayingAudio = false;
+let currentAudioSource = null;
 let sessionId = 'sess_' + Math.random().toString(36).substring(2, 9);
 let currentAssistantMessageElement = null;
+
+// Voice Assistant Gender State - Default is Female
+let selectedGender = 'female';
 
 // DOM Elements
 const statusBadge = document.getElementById('statusBadge');
@@ -20,6 +24,9 @@ const visualizerHint = document.getElementById('visualizerHint');
 const matrixLangBadge = document.getElementById('matrixLangBadge');
 const codeSwitchBadge = document.getElementById('codeSwitchBadge');
 const latencyBadge = document.getElementById('latencyBadge');
+const activePersonaBadge = document.getElementById('activePersonaBadge');
+const btnFemale = document.getElementById('btnFemale');
+const btnMale = document.getElementById('btnMale');
 const transcriptBox = document.getElementById('transcriptBox');
 const chatForm = document.getElementById('chatForm');
 const chatInput = document.getElementById('chatInput');
@@ -27,6 +34,40 @@ const clearChatBtn = document.getElementById('clearChatBtn');
 const languageSelect = document.getElementById('languageSelect');
 const canvas = document.getElementById('waveformCanvas');
 const canvasCtx = canvas.getContext('2d');
+
+// Persona / Gender Switcher Logic
+function updatePersonaUI(gender, name = null) {
+  selectedGender = gender.toLowerCase() === 'male' ? 'male' : 'female';
+  if (selectedGender === 'female') {
+    btnFemale.classList.add('active');
+    btnMale.classList.remove('active');
+    const dispName = name || (languageSelect.value === 'hi' ? 'Swara' : 'Aria');
+    if (activePersonaBadge) {
+      activePersonaBadge.textContent = `👩 Female (${dispName})`;
+    }
+  } else {
+    btnMale.classList.add('active');
+    btnFemale.classList.remove('active');
+    const dispName = name || (languageSelect.value === 'hi' ? 'Aarav' : 'Leo');
+    if (activePersonaBadge) {
+      activePersonaBadge.textContent = `👨 Male (${dispName})`;
+    }
+  }
+}
+
+if (btnFemale) {
+  btnFemale.addEventListener('click', () => {
+    updatePersonaUI('female');
+    sendConfigUpdate({ voice_gender: 'female' });
+  });
+}
+
+if (btnMale) {
+  btnMale.addEventListener('click', () => {
+    updatePersonaUI('male');
+    sendConfigUpdate({ voice_gender: 'male' });
+  });
+}
 
 // Initialize WebSocket Connection
 function connectWebSocket() {
@@ -39,10 +80,12 @@ function connectWebSocket() {
   socket.onopen = () => {
     statusBadge.classList.add('connected');
     statusText.textContent = 'Connected';
-    // Send initial language configuration
+    // Send initial configuration: default female voice and chosen language
+    const initConfig = { voice_gender: selectedGender };
     if (languageSelect.value !== 'auto') {
-      sendConfigUpdate({ language: languageSelect.value });
+      initConfig.language = languageSelect.value;
     }
+    sendConfigUpdate(initConfig);
   };
 
   socket.onclose = () => {
@@ -73,6 +116,12 @@ function handleServerEvent(msg) {
         interruptBtn.disabled = false;
       } else if (msg.value === 'idle' || msg.value === 'listening') {
         interruptBtn.disabled = true;
+      }
+      break;
+
+    case 'config.update':
+      if (msg.voice_gender) {
+        updatePersonaUI(msg.voice_gender, msg.voice_name);
       }
       break;
 
@@ -121,7 +170,8 @@ function appendMessage(sender, text, lang) {
 
   const nameSpan = document.createElement('span');
   nameSpan.className = 'sender-name';
-  nameSpan.textContent = sender === 'user' ? 'You' : 'ClanVox';
+  const assistantName = selectedGender === 'female' ? 'Aria' : 'Leo';
+  nameSpan.textContent = sender === 'user' ? 'You' : `ClanVox (${assistantName})`;
 
   const langSpan = document.createElement('span');
   langSpan.className = 'msg-lang';
@@ -173,7 +223,7 @@ async function toggleRecording() {
 async function startRecording() {
   try {
     if (!audioContext) {
-      audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
     }
     if (audioContext.state === 'suspended') {
       await audioContext.resume();
@@ -220,7 +270,7 @@ async function startRecording() {
 
     isRecording = true;
     micBtn.classList.add('active');
-    visualizerHint.textContent = 'Listening... Speak now';
+    visualizerHint.textContent = `Listening... (${selectedGender === 'female' ? 'Aria' : 'Leo'} is listening)`;
   } catch (err) {
     console.error('Microphone access denied:', err);
     alert('Microphone access is required for real-time voice chat.');
@@ -252,20 +302,19 @@ function arrayBufferToBase64(buffer) {
   return window.btoa(binary);
 }
 
-// Base64 to Int16Array
-function base64ToInt16Array(base64) {
+// Base64 to ArrayBuffer
+function base64ToArrayBuffer(base64) {
   const binary = window.atob(base64);
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) {
     bytes[i] = binary.charCodeAt(i);
   }
-  return new Int16Array(bytes.buffer);
+  return bytes.buffer;
 }
 
-// Queue & Play incoming TTS Audio
+// Queue & Play incoming TTS Audio (Supports realistic MP3/AAC/WAV and PCM)
 function queueAudioPlayback(base64Data) {
-  const pcm16 = base64ToInt16Array(base64Data);
-  audioQueue.push(pcm16);
+  audioQueue.push(base64Data);
   if (!isPlayingAudio) {
     playNextAudio();
   }
@@ -274,36 +323,74 @@ function queueAudioPlayback(base64Data) {
 async function playNextAudio() {
   if (audioQueue.length === 0) {
     isPlayingAudio = false;
+    currentAudioSource = null;
     return;
   }
   isPlayingAudio = true;
-  const pcm16 = audioQueue.shift();
+  const base64Data = audioQueue.shift();
 
   if (!audioContext) {
-    audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioContext.state === 'suspended') {
+    try { await audioContext.resume(); } catch (e) {}
   }
 
-  const audioBuffer = audioContext.createBuffer(1, pcm16.length, 16000);
-  const channelData = audioBuffer.getChannelData(0);
-  for (let i = 0; i < pcm16.length; i++) {
-    channelData[i] = pcm16[i] / 32768.0;
+  const arrayBuffer = base64ToArrayBuffer(base64Data);
+
+  // 1. Try decoding high-fidelity encoded audio (MP3, WAV, AAC from EdgeTTS / OpenAI)
+  try {
+    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer.slice(0));
+    const source = audioContext.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(audioContext.destination);
+    currentAudioSource = source;
+
+    source.onended = () => {
+      currentAudioSource = null;
+      playNextAudio();
+    };
+
+    source.start();
+    return;
+  } catch (decodeErr) {
+    // 2. Fallback to raw 16-bit PCM playback if uncompressed PCM frame
+    try {
+      const pcm16 = new Int16Array(arrayBuffer);
+      const audioBuffer = audioContext.createBuffer(1, pcm16.length, 16000);
+      const channelData = audioBuffer.getChannelData(0);
+      for (let i = 0; i < pcm16.length; i++) {
+        channelData[i] = pcm16[i] / 32768.0;
+      }
+
+      const source = audioContext.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(audioContext.destination);
+      currentAudioSource = source;
+
+      source.onended = () => {
+        currentAudioSource = null;
+        playNextAudio();
+      };
+
+      source.start();
+      return;
+    } catch (pcmErr) {
+      console.warn('Audio decoding fallback error:', decodeErr, pcmErr);
+      playNextAudio();
+    }
   }
-
-  const source = audioContext.createBufferSource();
-  source.buffer = audioBuffer;
-  source.connect(audioContext.destination);
-
-  source.onended = () => {
-    playNextAudio();
-  };
-
-  source.start();
 }
 
 // Barge-in / Interrupt
 function triggerBargeIn() {
   if (socket && socket.readyState === WebSocket.OPEN) {
     socket.send(JSON.stringify({ type: 'interrupt' }));
+  }
+  // Stop current active playing source
+  if (currentAudioSource) {
+    try { currentAudioSource.stop(); } catch (e) {}
+    currentAudioSource = null;
   }
   // Flush local audio queue immediately
   audioQueue = [];
@@ -314,7 +401,7 @@ function triggerBargeIn() {
 function drawWaveform(dataArray) {
   canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
   canvasCtx.lineWidth = 2;
-  canvasCtx.strokeStyle = '#06b6d4';
+  canvasCtx.strokeStyle = selectedGender === 'female' ? '#ec4899' : '#06b6d4';
   canvasCtx.beginPath();
 
   const sliceWidth = canvas.width * 1.0 / dataArray.length;
@@ -356,6 +443,7 @@ languageSelect.addEventListener('change', (e) => {
   if (lang !== 'auto') {
     sendConfigUpdate({ language: lang });
     matrixLangBadge.textContent = lang.toUpperCase();
+    updatePersonaUI(selectedGender);
   }
 });
 
@@ -380,6 +468,6 @@ clearChatBtn.addEventListener('click', () => {
 
 // Connect on page load
 window.addEventListener('DOMContentLoaded', () => {
+  updatePersonaUI('female'); // Female is the default
   connectWebSocket();
 });
-

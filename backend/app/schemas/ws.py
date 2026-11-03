@@ -8,6 +8,7 @@ class WSClientMessage(BaseModel):
     text: Optional[str] = None
     language: Optional[str] = None
     voice: Optional[str] = None
+    voice_gender: Optional[str] = None # 'female' or 'male'
     speed: Optional[float] = 1.0
 
 # Server -> Client
@@ -15,8 +16,11 @@ class WSServerEvent(BaseModel):
     type: str # stt.partial, stt.final, llm.delta, tts.audio, state, tool.call, error
     text: Optional[str] = None
     lang: Optional[str] = None
+    voice_gender: Optional[str] = None
+    voice_name: Optional[str] = None
     confidence: Optional[float] = None
     data: Optional[str] = None # base64 audio
+    format: Optional[str] = None # 'mp3' or 'pcm'
     seq: Optional[int] = None
     value: Optional[str] = None # state: idle, listening, thinking, speaking, interrupted
     name: Optional[str] = None # tool name

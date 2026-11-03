@@ -16,6 +16,9 @@ from ..providers.stt.mock import MockSTTProvider
 from ..providers.stt.deepgram import DeepgramSTTProvider
 from ..providers.tts.mock import MockTTSProvider
 from ..providers.tts.cartesia import CartesiaTTSProvider
+from ..providers.tts.elevenlabs import ElevenLabsTTSProvider
+from ..providers.tts.openai_tts import OpenAITTSProvider
+from ..providers.tts.edge import EdgeTTSProvider
 
 router = APIRouter(tags=["realtime"])
 
@@ -23,7 +26,20 @@ def create_providers():
     # Factory selecting providers according to config / settings
     stt = DeepgramSTTProvider() if settings.STT_PROVIDER == "deepgram" else MockSTTProvider()
     llm = OpenAILLMProvider() if settings.LLM_PROVIDER == "openai" else MockLLMProvider()
-    tts = CartesiaTTSProvider() if settings.TTS_PROVIDER == "cartesia" else MockTTSProvider()
+
+    tts_mode = (settings.TTS_PROVIDER or "edge").lower()
+    if tts_mode == "openai":
+        tts = OpenAITTSProvider()
+    elif tts_mode == "elevenlabs":
+        tts = ElevenLabsTTSProvider()
+    elif tts_mode == "cartesia":
+        tts = CartesiaTTSProvider()
+    elif tts_mode == "mock":
+        tts = MockTTSProvider()
+    else:
+        # Default realistic neural TTS with female/male support in 100+ languages
+        tts = EdgeTTSProvider()
+
     return stt, llm, tts
 
 @router.websocket("/v1/realtime")
@@ -128,11 +144,13 @@ async def websocket_realtime_endpoint(websocket: WebSocket, session_id: Optional
             elif msg_type == "config.update":
                 if "language" in data:
                     mem.current_lang = data["language"]
+                if "voice_gender" in data:
+                    mem.preferences.voice_gender = str(data["voice_gender"]).lower()
                 if "voice" in data:
                     mem.preferences.voice_id = data["voice"]
                 if "speed" in data:
                     mem.preferences.speech_rate = float(data["speed"])
-                logger.info("Updated real-time session config", lang=mem.current_lang, voice=mem.preferences.voice_id)
+                logger.info("Updated real-time session config", lang=mem.current_lang, voice_gender=mem.preferences.voice_gender, voice=mem.preferences.voice_id)
 
             elif msg_type == "interrupt":
                 logger.info("Manual interrupt received from client")

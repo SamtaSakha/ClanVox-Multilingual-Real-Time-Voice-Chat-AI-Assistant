@@ -35,8 +35,13 @@ providers:
       model_size: "turbo"
 
   tts:
-    mock:
-      type: mock
+    edge:
+      type: edge_tts
+      default_gender: female
+    openai:
+      model: "tts-1"
+      female_voice: "nova"
+      male_voice: "echo"
     cartesia:
       model: "sonic-multilingual"
       encoding: "pcm_16000"
@@ -44,11 +49,15 @@ providers:
       model: "eleven_multilingual_v2"
     azure:
       audio_format: "raw-16khz-16bit-mono-pcm"
+    mock:
+      type: mock
+      female_freq: 520.0
+      male_freq: 220.0
 
 routing:
   default_llm: mock
   default_stt: mock
-  default_tts: mock
+  default_tts: edge
+  default_voice_gender: female
   fallback_stt: mock
   fallback_tts: mock
-

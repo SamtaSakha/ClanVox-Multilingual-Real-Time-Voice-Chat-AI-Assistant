@@ -9,6 +9,9 @@ locales:
     pronoun_system: standard
     stt: { primary: deepgram, model: "nova-3" }
     tts: { voice: "en-US-JennyNeural" }
+    tts_voices:
+      female: { name: "Aria", voice_id: "en-US-JennyNeural" }
+      male: { name: "Leo", voice_id: "en-US-GuyNeural" }
 
   en-IN:
     base_language: en
@@ -18,6 +21,9 @@ locales:
     allow_code_switch: ["hi"]
     stt: { primary: deepgram, model: "nova-3" }
     tts: { voice: "en-IN-NeerjaNeural" }
+    tts_voices:
+      female: { name: "Neerja", voice_id: "en-IN-NeerjaNeural" }
+      male: { name: "Prabhat", voice_id: "en-IN-PrabhatNeural" }
     slang_lexicon: "config/culture/en-IN/slang.jsonl"
     exemplars: "config/culture/en-IN/exemplars.jsonl"
 
@@ -29,6 +35,9 @@ locales:
     script_preference: devanagari
     stt: { primary: deepgram, model: "nova-3" }
     tts: { voice: "hi-IN-SwaraNeural" }
+    tts_voices:
+      female: { name: "Swara", voice_id: "hi-IN-SwaraNeural" }
+      male: { name: "Aarav", voice_id: "hi-IN-MadhurNeural" }
     slang_lexicon: "config/culture/hi-IN/slang.jsonl"
     exemplars: "config/culture/hi-IN/exemplars.jsonl"
 
@@ -39,6 +48,9 @@ locales:
     default_formality: informal
     stt: { primary: google, custom_vocab: "vocab/es-AR.txt" }
     tts: { voice: "es-AR-ElenaNeural" }
+    tts_voices:
+      female: { name: "Elena", voice_id: "es-AR-ElenaNeural" }
+      male: { name: "Tomas", voice_id: "es-AR-TomasNeural" }
     slang_lexicon: "config/culture/es-AR/slang.jsonl"
     exemplars: "config/culture/es-AR/exemplars.jsonl"
 
@@ -49,6 +61,9 @@ locales:
     default_formality: informal
     stt: { primary: azure }
     tts: { voice: "es-MX-DaliaNeural" }
+    tts_voices:
+      female: { name: "Dalia", voice_id: "es-MX-DaliaNeural" }
+      male: { name: "Jorge", voice_id: "es-MX-JorgeNeural" }
 
   ar-EG:
     base_language: ar
@@ -57,6 +72,9 @@ locales:
     default_formality: informal
     stt: { primary: azure }
     tts: { voice: "ar-EG-SalmaNeural" }
+    tts_voices:
+      female: { name: "Salma", voice_id: "ar-EG-SalmaNeural" }
+      male: { name: "Shakir", voice_id: "ar-EG-ShakirNeural" }
     slang_lexicon: "config/culture/ar-EG/slang.jsonl"
     exemplars: "config/culture/ar-EG/exemplars.jsonl"
 
@@ -66,4 +84,6 @@ locales:
     default_formality: formal           # teineigo/keigo (です・ます)
     stt: { primary: azure }
     tts: { voice: "ja-JP-NanamiNeural" }
-
+    tts_voices:
+      female: { name: "Nanami", voice_id: "ja-JP-NanamiNeural" }
+      male: { name: "Keita", voice_id: "ja-JP-KeitaNeural" }

@@ -63,9 +63,11 @@ class TurnOrchestrator:
                 self.memory.add_message("assistant", override_msg, detected_lang)
                 await self.send_event({"type": "llm.delta", "text": override_msg})
                 # Synthesize TTS for the override
+                gender = self.memory.preferences.voice_gender or "female"
+                voice_id = self.resolve_voice(detected_lang, self.memory.locale, gender)
                 async def text_gen():
                     yield override_msg
-                async for audio_chunk in self.tts.stream(text_gen(), detected_lang):
+                async for audio_chunk in self.tts.stream(text_gen(), detected_lang, voice=voice_id):
                     await self.send_audio(audio_chunk)
                 await self.update_state("listening")
                 return
@@ -148,7 +150,16 @@ class TurnOrchestrator:
                     yield formatted_tool_res
 
         try:
-            voice_id = languages_registry.get(lang, {}).get("tts_voice", "en-US-JennyNeural")
+            gender = (self.memory.preferences.voice_gender or "female").lower()
+            voice_id = self.resolve_voice(lang, locale, gender)
+            voice_name = self.get_voice_name(lang, locale, gender)
+            await self.send_event({
+                "type": "config.update",
+                "voice_gender": gender,
+                "voice_name": voice_name,
+                "voice_id": voice_id
+            })
+
             seq = 0
             async for sentence in chunk_sentences(text_stream(), lang):
                 if self.state != "speaking":
@@ -159,7 +170,7 @@ class TurnOrchestrator:
                 async def sentence_stream():
                     yield sentence
 
-                async for audio_bytes in self.tts.stream(sentence_stream(), lang, voice_id):
+                async for audio_bytes in self.tts.stream(sentence_stream(), lang, voice=voice_id):
                     seq += 1
                     await self.send_audio(audio_bytes)
 
@@ -194,6 +205,40 @@ class TurnOrchestrator:
                 pass
             self.reply_task = None
 
+    def resolve_voice(self, lang: str, locale: str, gender: str = "female") -> str:
+        gender_key = "male" if gender.lower() == "male" else "female"
+
+        # 1. Check locale specific voices
+        locale_data = locales_registry.get(locale, {})
+        loc_voices = locale_data.get("tts_voices", {})
+        if gender_key in loc_voices and "voice_id" in loc_voices[gender_key]:
+            return loc_voices[gender_key]["voice_id"]
+
+        # 2. Check language specific voices
+        lang_data = languages_registry.get(lang, {})
+        lang_voices = lang_data.get("tts_voices", {})
+        if gender_key in lang_voices and "voice_id" in lang_voices[gender_key]:
+            return lang_voices[gender_key]["voice_id"]
+
+        # 3. Default fallback
+        if gender_key == "male":
+            return "en-US-GuyNeural"
+        return "en-US-JennyNeural"
+
+    def get_voice_name(self, lang: str, locale: str, gender: str = "female") -> str:
+        gender_key = "male" if gender.lower() == "male" else "female"
+        locale_data = locales_registry.get(locale, {})
+        loc_voices = locale_data.get("tts_voices", {})
+        if gender_key in loc_voices and "name" in loc_voices[gender_key]:
+            return loc_voices[gender_key]["name"]
+
+        lang_data = languages_registry.get(lang, {})
+        lang_voices = lang_data.get("tts_voices", {})
+        if gender_key in lang_voices and "name" in lang_voices[gender_key]:
+            return lang_voices[gender_key]["name"]
+
+        return "Leo" if gender_key == "male" else "Aria"
+
     def build_prompt_messages(
         self,
         lang: str,
@@ -213,6 +258,10 @@ class TurnOrchestrator:
             locale=locale,
             formality=formality,
         )
+
+        gender = (self.memory.preferences.voice_gender or "female").lower()
+        persona_name = self.get_voice_name(lang, locale, gender)
+        rendered_prompt += f"\n\nASSISTANT IDENTITY:\nYour name is {persona_name}. You are the user's {'female' if gender == 'female' else 'male'} AI assistant. Adopt a natural, warm, and engaging {'female' if gender == 'female' else 'male'} vocal demeanor."
 
         if slang_items:
             slang_str = "\n".join([f"- {s['term']}: {s['meaning']} (example: {s['example']})" for s in slang_items])

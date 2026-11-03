@@ -17,8 +17,21 @@ async def main():
     print("=" * 65)
     print("   ClanVox - Multilingual AI Assistant (Interactive CLI)")
     print("=" * 65)
-    print("Type anything in English, Hindi, Hinglish, Spanish, etc.")
+    print("Select AI Assistant Voice Persona:")
+    print(" [1] 👩 Female Assistant (Aria / Swara)  <-- DEFAULT")
+    print(" [2] 👨 Male Assistant (Leo / Aarav)")
+    print("Press Enter to keep default (Female), or type 1 or 2.")
+    print("Tip: Type '/male' or '/female' anytime to switch persona.")
     print("Type 'exit' or 'quit' to return to menu.\n")
+
+    try:
+        choice = input("Select assistant (1/2, default 1): ").strip()
+    except (EOFError, KeyboardInterrupt):
+        return
+
+    gender = "male" if choice == "2" else "female"
+    persona_name = "Leo" if gender == "male" else "Aria"
+    print(f"\n[Active Assistant] {'👩 Female' if gender == 'female' else '👨 Male'} ({persona_name})\n")
 
     dialect_id = DialectIdentifier(locales_registry)
     context_engine = ContextEngine()
@@ -27,7 +40,7 @@ async def main():
 
     while True:
         try:
-            user_input = input("\nYou > ").strip()
+            user_input = input(f"\nYou > ").strip()
         except (EOFError, KeyboardInterrupt):
             break
 
@@ -35,6 +48,18 @@ async def main():
             continue
         if user_input.lower() in ["exit", "quit", "q"]:
             break
+
+        # In-line persona switching commands
+        if user_input.lower() in ["/female", "female"]:
+            gender = "female"
+            persona_name = "Aria"
+            print("[Switched to 👩 Female Assistant (Aria)]")
+            continue
+        elif user_input.lower() in ["/male", "male"]:
+            gender = "male"
+            persona_name = "Leo"
+            print("[Switched to 👨 Male Assistant (Leo)]")
+            continue
 
         # Code-switching analysis
         spans = split_by_script(user_input)
@@ -44,11 +69,14 @@ async def main():
         locale = dialect_id.identify_locale(user_input, matrix)
         formality = context_engine.decide_formality("auto", locale, user_input)
 
-        print(f"\n[Analysis] Matrix Lang: {matrix.upper()} | Code-Switched: {code_switched} | Locale: {locale} | Formality: {formality}")
-        print("ClanVox > ", end="", flush=True)
+        localized_name = "Swara" if (gender == "female" and matrix == "hi") else ("Aarav" if (gender == "male" and matrix == "hi") else persona_name)
+
+        print(f"[Analysis] Matrix: {matrix.upper()} | Code-Switch: {code_switched} | Locale: {locale} | Assistant: {localized_name} ({gender.capitalize()})")
+        print(f"ClanVox ({localized_name}) > ", end="", flush=True)
 
         system_prompt = (
-            f"You are ClanVox AI assistant. Reply in {matrix} (locale: {locale}, formality: {formality}). "
+            f"You are {localized_name}, a helpful {'female' if gender == 'female' else 'male'} AI assistant. "
+            f"Reply in {matrix} (locale: {locale}, formality: {formality}). "
             f"If user mixes languages (e.g. Hinglish), mirror their style naturally."
         )
         messages = [

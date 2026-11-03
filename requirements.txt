@@ -47,6 +47,7 @@ google-cloud-speech>=2.26
 google-cloud-texttospeech>=2.16
 elevenlabs>=1.0
 cartesia>=1.0
+edge-tts>=7.0
 
 # ---------- LLM providers ----------
 anthropic>=0.40
