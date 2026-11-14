@@ -125,6 +125,23 @@ function handleServerEvent(msg) {
       }
       break;
 
+    case 'analysis':
+      if (matrixLangBadge && msg.matrix_lang) {
+        matrixLangBadge.textContent = msg.matrix_lang.toUpperCase();
+      }
+      if (codeSwitchBadge) {
+        const cs = !!msg.code_switched;
+        codeSwitchBadge.textContent = cs ? 'Active' : 'Inactive';
+        codeSwitchBadge.style.color = cs ? '#10b981' : '#94a3b8';
+      }
+      break;
+
+    case 'telemetry':
+      if (latencyBadge && msg.total_ms) {
+        latencyBadge.textContent = `${msg.total_ms} ms`;
+      }
+      break;
+
     case 'stt.partial':
       visualizerHint.textContent = msg.text || 'Listening...';
       break;
@@ -271,6 +288,12 @@ async function startRecording() {
     isRecording = true;
     micBtn.classList.add('active');
     visualizerHint.textContent = `Listening... (${selectedGender === 'female' ? 'Aria' : 'Leo'} is listening)`;
+
+    // Launch real-time speech recognition in browser
+    initSpeechRecognition();
+    if (speechRecognition) {
+      try { speechRecognition.start(); } catch (e) {}
+    }
   } catch (err) {
     console.error('Microphone access denied:', err);
     alert('Microphone access is required for real-time voice chat.');
@@ -281,6 +304,11 @@ function stopRecording() {
   isRecording = false;
   micBtn.classList.remove('active');
   visualizerHint.textContent = 'Tap microphone to speak';
+
+  if (speechRecognition) {
+    try { speechRecognition.stop(); } catch (e) {}
+    speechRecognition = null;
+  }
 
   if (mediaStream) {
     mediaStream.getTracks().forEach(track => track.stop());
@@ -312,35 +340,130 @@ function base64ToArrayBuffer(base64) {
   return bytes.buffer;
 }
 
-// Queue & Play incoming TTS Audio (Supports realistic MP3/AAC/WAV and PCM)
-function queueAudioPlayback(base64Data) {
-  audioQueue.push(base64Data);
-  if (!isPlayingAudio) {
-    playNextAudio();
+// Web Speech API Integration for real-time zero-lag speech recognition
+let speechRecognition = null;
+const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+const LANG_BCP47_MAP = {
+  'auto': 'en-US',
+  'en': 'en-US',
+  'hi': 'hi-IN',
+  'es': 'es-ES',
+  'fr': 'fr-FR',
+  'de': 'de-DE',
+  'ar': 'ar-SA',
+  'ja': 'ja-JP',
+  'zh': 'zh-CN',
+  'pt': 'pt-BR',
+  'ru': 'ru-RU',
+  'it': 'it-IT'
+};
+
+function initSpeechRecognition() {
+  if (!SpeechRecognitionAPI) {
+    console.info('Web Speech API not supported in this browser; falling back to server VAD.');
+    return;
+  }
+  try {
+    speechRecognition = new SpeechRecognitionAPI();
+    speechRecognition.continuous = true;
+    speechRecognition.interimResults = true;
+    speechRecognition.lang = LANG_BCP47_MAP[languageSelect.value] || 'en-US';
+
+    speechRecognition.onresult = (event) => {
+      let interim = '';
+      let finalTranscript = '';
+
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript;
+        } else {
+          interim += event.results[i][0].transcript;
+        }
+      }
+
+      if (interim) {
+        visualizerHint.textContent = `"${interim}"`;
+      }
+
+      if (finalTranscript.trim()) {
+        const textToSend = finalTranscript.trim();
+        visualizerHint.textContent = `"${textToSend}"`;
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({
+            type: 'text.message',
+            text: textToSend,
+            language: languageSelect.value === 'auto' ? null : languageSelect.value
+          }));
+        }
+      }
+    };
+
+    speechRecognition.onerror = (e) => {
+      if (e.error !== 'no-speech') {
+        console.warn('Speech recognition warning:', e.error);
+      }
+    };
+  } catch (err) {
+    console.warn('Speech recognition initialization error:', err);
   }
 }
 
-async function playNextAudio() {
-  if (audioQueue.length === 0) {
+// Pre-decoded Queue & Playback for seamless, zero-gap audio streaming
+let decodedQueue = [];
+
+async function queueAudioPlayback(base64Data) {
+  if (!base64Data) return;
+  try {
+    if (!audioContext) {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioContext.state === 'suspended') {
+      try { await audioContext.resume(); } catch (e) {}
+    }
+
+    const arrayBuffer = base64ToArrayBuffer(base64Data);
+    let audioBuffer = null;
+
+    try {
+      // Decode complete sentence MP3 buffer
+      audioBuffer = await audioContext.decodeAudioData(arrayBuffer.slice(0));
+    } catch (decodeErr) {
+      // Fallback for raw 16-bit PCM if uncompressed frame
+      try {
+        const pcm16 = new Int16Array(arrayBuffer);
+        audioBuffer = audioContext.createBuffer(1, pcm16.length, 16000);
+        const channelData = audioBuffer.getChannelData(0);
+        for (let i = 0; i < pcm16.length; i++) {
+          channelData[i] = pcm16[i] / 32768.0;
+        }
+      } catch (pcmErr) {
+        console.warn('Audio decoding fallback error:', decodeErr, pcmErr);
+      }
+    }
+
+    if (audioBuffer) {
+      decodedQueue.push(audioBuffer);
+      if (!isPlayingAudio) {
+        playNextDecodedAudio();
+      }
+    }
+  } catch (err) {
+    console.error('Failed to queue audio playback:', err);
+  }
+}
+
+function playNextDecodedAudio() {
+  if (decodedQueue.length === 0) {
     isPlayingAudio = false;
     currentAudioSource = null;
     return;
   }
+
   isPlayingAudio = true;
-  const base64Data = audioQueue.shift();
+  const audioBuffer = decodedQueue.shift();
 
-  if (!audioContext) {
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  }
-  if (audioContext.state === 'suspended') {
-    try { await audioContext.resume(); } catch (e) {}
-  }
-
-  const arrayBuffer = base64ToArrayBuffer(base64Data);
-
-  // 1. Try decoding high-fidelity encoded audio (MP3, WAV, AAC from EdgeTTS / OpenAI)
   try {
-    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer.slice(0));
     const source = audioContext.createBufferSource();
     source.buffer = audioBuffer;
     source.connect(audioContext.destination);
@@ -348,37 +471,14 @@ async function playNextAudio() {
 
     source.onended = () => {
       currentAudioSource = null;
-      playNextAudio();
+      playNextDecodedAudio();
     };
 
     source.start();
-    return;
-  } catch (decodeErr) {
-    // 2. Fallback to raw 16-bit PCM playback if uncompressed PCM frame
-    try {
-      const pcm16 = new Int16Array(arrayBuffer);
-      const audioBuffer = audioContext.createBuffer(1, pcm16.length, 16000);
-      const channelData = audioBuffer.getChannelData(0);
-      for (let i = 0; i < pcm16.length; i++) {
-        channelData[i] = pcm16[i] / 32768.0;
-      }
-
-      const source = audioContext.createBufferSource();
-      source.buffer = audioBuffer;
-      source.connect(audioContext.destination);
-      currentAudioSource = source;
-
-      source.onended = () => {
-        currentAudioSource = null;
-        playNextAudio();
-      };
-
-      source.start();
-      return;
-    } catch (pcmErr) {
-      console.warn('Audio decoding fallback error:', decodeErr, pcmErr);
-      playNextAudio();
-    }
+  } catch (e) {
+    console.error('Audio playback error:', e);
+    currentAudioSource = null;
+    playNextDecodedAudio();
   }
 }
 
@@ -392,7 +492,8 @@ function triggerBargeIn() {
     try { currentAudioSource.stop(); } catch (e) {}
     currentAudioSource = null;
   }
-  // Flush local audio queue immediately
+  // Flush decoded audio queue immediately
+  decodedQueue = [];
   audioQueue = [];
   isPlayingAudio = false;
 }
@@ -444,6 +545,9 @@ languageSelect.addEventListener('change', (e) => {
     sendConfigUpdate({ language: lang });
     matrixLangBadge.textContent = lang.toUpperCase();
     updatePersonaUI(selectedGender);
+  }
+  if (speechRecognition) {
+    speechRecognition.lang = LANG_BCP47_MAP[lang] || 'en-US';
   }
 });
 

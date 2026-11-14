@@ -35,9 +35,12 @@ class EdgeTTSProvider(TTSProvider):
 
             try:
                 communicator = edge_tts.Communicate(clean_text, target_voice)
+                sentence_buffer = bytearray()
                 async for chunk in communicator.stream():
                     if chunk["type"] == "audio" and chunk["data"]:
-                        yield chunk["data"]
+                        sentence_buffer.extend(chunk["data"])
+                if sentence_buffer:
+                    yield bytes(sentence_buffer)
             except Exception as e:
                 logger.error("EdgeTTS generation error", error=str(e), voice=target_voice)
                 # Fallback to harmonic audio on error

@@ -25,7 +25,7 @@ router = APIRouter(tags=["realtime"])
 def create_providers():
     # Factory selecting providers according to config / settings
     stt = DeepgramSTTProvider() if settings.STT_PROVIDER == "deepgram" else MockSTTProvider()
-    llm = OpenAILLMProvider() if settings.LLM_PROVIDER == "openai" else MockLLMProvider()
+    llm = OpenAILLMProvider() if settings.LLM_PROVIDER in ["openai", "groq"] else MockLLMProvider()
 
     tts_mode = (settings.TTS_PROVIDER or "edge").lower()
     if tts_mode == "openai":

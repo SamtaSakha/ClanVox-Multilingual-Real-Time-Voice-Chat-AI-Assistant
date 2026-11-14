@@ -22,7 +22,16 @@ class MockSTTProvider(STTProvider):
                     language=lang_hint or self.default_lang,
                     confidence=0.85
                 )
-            await asyncio.sleep(0.01)
+            # Finalize turn after ~2 seconds of speech so the assistant responds immediately
+            if total_bytes >= 32000:
+                yield STTResult(
+                    text="Hello ClanVox, how are you?",
+                    is_final=True,
+                    language=lang_hint or self.default_lang,
+                    confidence=0.96
+                )
+                total_bytes = 0
+            await asyncio.sleep(0.002)
 
         # On stream end, yield a mock final transcript if any audio was sent
         if total_bytes > 0:

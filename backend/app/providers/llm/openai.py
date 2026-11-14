@@ -5,10 +5,15 @@ from ...core.config import settings
 from ...core.logging import logger
 
 class OpenAILLMProvider(LLMProvider):
-    def __init__(self, api_key: Optional[str] = None, model: str = "gpt-4o-mini"):
-        self.api_key = api_key or settings.OPENAI_API_KEY
-        self.model = model
-        self.client = openai.AsyncOpenAI(api_key=self.api_key) if self.api_key else None
+    def __init__(self, api_key: Optional[str] = None, model: str = "gpt-4o-mini", base_url: Optional[str] = None):
+        if settings.LLM_PROVIDER == "groq" or (settings.GROQ_API_KEY and not settings.OPENAI_API_KEY):
+            self.api_key = api_key or settings.GROQ_API_KEY
+            self.model = "llama-3.3-70b-versatile"
+            self.client = openai.AsyncOpenAI(api_key=self.api_key, base_url="https://api.groq.com/openai/v1") if self.api_key else None
+        else:
+            self.api_key = api_key or settings.OPENAI_API_KEY
+            self.model = model
+            self.client = openai.AsyncOpenAI(api_key=self.api_key, base_url=base_url) if self.api_key else None
 
     async def stream(
         self,

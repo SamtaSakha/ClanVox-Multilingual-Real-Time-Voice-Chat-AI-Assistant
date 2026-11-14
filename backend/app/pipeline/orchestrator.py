@@ -83,6 +83,14 @@ class TurnOrchestrator:
         self.memory.current_lang = active_lang
         telemetry.record_mark(spans, "lid_done")
 
+        # Notify UI of detected matrix language and code-switching status
+        await self.send_event({
+            "type": "analysis",
+            "matrix_lang": active_lang,
+            "code_switched": code_switched,
+            "locale": self.memory.locale
+        })
+
         # 4. Dialect & Locale Identification
         locale = self.dialect_id.identify_locale(text, active_lang, self.memory.locale)
         self.memory.locale = locale
@@ -175,7 +183,12 @@ class TurnOrchestrator:
                     await self.send_audio(audio_bytes)
 
             self.memory.add_message("assistant", full_reply_text, lang)
-            telemetry.finish_turn(spans)
+            lat_durations = telemetry.finish_turn(spans)
+            await self.send_event({
+                "type": "telemetry",
+                "total_ms": int(lat_durations.get("total_ms", 0)),
+                "ttft_ms": int(lat_durations.get("llm_ttft_to_first_sentence_ms", lat_durations.get("total_ms", 0)))
+            })
         except asyncio.CancelledError:
             # Handle user barge-in
             telemetry.record_barge_in()

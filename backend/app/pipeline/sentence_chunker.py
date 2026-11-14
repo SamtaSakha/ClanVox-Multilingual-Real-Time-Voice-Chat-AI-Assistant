@@ -2,6 +2,7 @@ import re
 from typing import AsyncIterator, List
 
 TERMINAL_PUNCTUATION = set(".!?।。！？؟…\n")
+EARLY_BREAK_PUNCTUATION = set(",;:—–،")
 ABBREVIATIONS = {"dr.", "mr.", "mrs.", "ms.", "e.g.", "i.e.", "etc.", "vs.", "prof."}
 
 def is_abbreviation_or_decimal(text: str, idx: int) -> bool:
@@ -22,7 +23,7 @@ def is_abbreviation_or_decimal(text: str, idx: int) -> bool:
 async def chunk_sentences(
     text_stream: AsyncIterator[str],
     lang: str = "en",
-    first_chunk_min_chars: int = 24
+    first_chunk_min_chars: int = 15
 ) -> AsyncIterator[str]:
     """Streams sentences as soon as they form, optimizing time-to-first-audio (TTFA).
     Supports English, Hindi (purna viram '।'), CJK ('。'), Arabic ('؟'), etc.
@@ -33,14 +34,16 @@ async def chunk_sentences(
     async for token in text_stream:
         buffer += token
 
-        # Early comma split for the first chunk to minimize initial latency
-        if is_first_chunk and len(buffer) >= first_chunk_min_chars and ("," in buffer or "،" in buffer):
-            split_idx = buffer.find(",") if "," in buffer else buffer.find("،")
-            chunk = buffer[:split_idx + 1].strip()
-            buffer = buffer[split_idx + 1:].lstrip()
-            if chunk:
-                is_first_chunk = False
-                yield chunk
+        # Early comma/punctuation split for the first chunk to minimize initial latency
+        if is_first_chunk and len(buffer) >= first_chunk_min_chars:
+            for idx, ch in enumerate(buffer):
+                if ch in EARLY_BREAK_PUNCTUATION and idx >= first_chunk_min_chars:
+                    chunk = buffer[:idx + 1].strip()
+                    buffer = buffer[idx + 1:].lstrip()
+                    if chunk:
+                        is_first_chunk = False
+                        yield chunk
+                    break
 
         # Check for sentence terminators
         i = 0

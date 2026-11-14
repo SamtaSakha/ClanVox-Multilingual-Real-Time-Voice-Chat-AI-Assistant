@@ -3,7 +3,7 @@ from typing import Any, AsyncIterator, Dict, List, Optional
 from ..base import LLMProvider
 
 class MockLLMProvider(LLMProvider):
-    def __init__(self, latency_per_token: float = 0.03):
+    def __init__(self, latency_per_token: float = 0.005):
         self.latency = latency_per_token
 
     async def stream(
