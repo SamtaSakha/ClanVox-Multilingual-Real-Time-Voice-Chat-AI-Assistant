@@ -1,7 +1,7 @@
 # 🌍 ClanVox — Multilingual Real-Time Voice & Chat AI Assistant
 
 > A production-oriented blueprint for an AI assistant that **listens, speaks, and chats in many languages in real time**, detects the user's language automatically, and can switch languages mid-conversation.
-
+> 
 ---
 
 ## Table of Contents
