@@ -2,6 +2,7 @@ import uuid
 from typing import Any, Dict, List
 from fastapi import APIRouter, HTTPException
 from ..core.config import languages_registry, locales_registry, settings
+from ..core.history_logger import history_logger, HISTORY_DIR
 from ..memory.session_store import session_store
 from ..schemas.session import SessionCreate, SessionResponse, UserPreferences
 
@@ -56,4 +57,30 @@ async def list_languages():
 @router.patch("/users/me/preferences")
 async def update_preferences(prefs: UserPreferences):
     return {"status": "updated", "preferences": prefs}
+
+@router.get("/history/sessions")
+async def get_history_sessions():
+    """Retrieve metadata for all locally archived sessions."""
+    return {"sessions": history_logger.list_sessions()}
+
+@router.get("/history/sessions/{session_id}")
+async def get_history_session_detail(session_id: str):
+    """Retrieve full transcript and snapshot of a past session from history."""
+    data = history_logger.get_session(session_id)
+    if not data:
+        raise HTTPException(status_code=404, detail="Archived session not found")
+    return data
+
+@router.get("/history/activity")
+async def get_history_activity(limit: int = 100):
+    """Retrieve recent lines from the activity audit log."""
+    activity_file = HISTORY_DIR / "activity.log"
+    if not activity_file.exists():
+        return {"activity": []}
+    try:
+        with open(activity_file, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+        return {"activity": lines[-limit:]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 

@@ -5,6 +5,7 @@ from jinja2 import Template
 
 from ..core.config import CONFIG_DIR, languages_registry, locales_registry
 from ..core.logging import logger
+from ..core.history_logger import history_logger
 from ..memory.session_store import SessionMemory
 from ..pipeline.sentence_chunker import chunk_sentences
 from ..pipeline.language_router import LanguageRouter
@@ -152,6 +153,10 @@ class TurnOrchestrator:
                     tool_args = ev.get("args", {})
                     await self.send_event({"type": "tool.call", "name": tool_name, "args": tool_args})
                     tool_res = await tool_registry.execute(tool_name, tool_args)
+                    try:
+                        history_logger.log_tool_execution(self.memory.session_id, tool_name, tool_args, tool_res)
+                    except Exception:
+                        pass
                     formatted_tool_res = f" [Tool '{tool_name}' result: {tool_res}] "
                     full_reply_text += formatted_tool_res
                     await self.send_event({"type": "llm.delta", "text": formatted_tool_res})
