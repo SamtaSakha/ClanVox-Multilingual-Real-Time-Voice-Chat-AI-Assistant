@@ -18,7 +18,7 @@ from ..schemas.chat import ChatRequest, ChatResponse
 router = APIRouter(prefix="/v1", tags=["chat"])
 
 def get_llm():
-    if settings.LLM_PROVIDER == "openai" and settings.OPENAI_API_KEY:
+    if settings.LLM_PROVIDER in ["openai", "groq", "gemini"] or settings.OPENAI_API_KEY or settings.GROQ_API_KEY or settings.GEMINI_API_KEY:
         return OpenAILLMProvider()
     elif settings.LLM_PROVIDER == "anthropic" and settings.ANTHROPIC_API_KEY:
         return AnthropicLLMProvider()

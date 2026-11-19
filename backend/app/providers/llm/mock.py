@@ -17,10 +17,10 @@ class MockLLMProvider(LLMProvider):
                 last_message = m.get("content", "")
                 break
 
-        lower = last_message.lower()
+        lower = last_message.lower().strip()
 
         # Tool calling demonstration if asked about weather
-        if "weather" in lower or "mausam" in lower or "clima" in lower:
+        if any(w in lower for w in ["weather", "mausam", "clima", "temperature"]):
             city = "Delhi" if "delhi" in lower else "Mumbai" if "mumbai" in lower else "New York"
             yield {
                 "type": "tool_call",
@@ -29,8 +29,30 @@ class MockLLMProvider(LLMProvider):
             }
             return
 
+        # Tool calling demonstration if asked about time
+        if any(t in lower for t in ["what time", "current time", "samay", "time now", "what's the time"]):
+            yield {
+                "type": "tool_call",
+                "name": "get_time",
+                "args": {"timezone_hint": "UTC"}
+            }
+            return
+
+        # Natural conversational replies
+        if "how are you" in lower or "how r u" in lower:
+            reply = "Hello! I am doing wonderful, thank you for asking. How are you doing today, and how can I help you?"
+        elif any(lower.startswith(g) or lower == g for g in ["hello", "hi", "hey", "good morning", "good evening", "good afternoon"]):
+            reply = "Hello! Welcome to ClanVox. I am your real-time multilingual assistant. What would you like to explore today?"
+        elif any(w in lower for w in ["who are you", "what are you", "what can you do", "introduce yourself"]):
+            reply = "I am ClanVox, a real-time multilingual AI assistant designed for fluid voice and text conversation with automatic language detection, code-switching, and tool calling."
+        elif any(w in lower for w in ["thank", "thanks", "dhanyawad", "shukriya"]):
+            reply = "You're very welcome! Always happy to help. Let me know if you need anything else."
+        elif any(w in lower for w in ["bye", "goodbye", "see you", "alvida"]):
+            reply = "Goodbye! Take care and have a wonderful day ahead!"
+        elif "joke" in lower:
+            reply = "Why do programmers prefer dark mode? Because light attracts bugs!"
         # Multilingual conversational replies
-        if any(h in lower for h in ["namaste", "kaise ho", "kya chal", "aap kaise"]):
+        elif any(h in lower for h in ["namaste", "kaise ho", "kya chal", "aap kaise"]):
             reply = "Namaste! Main badhiya hoon. Aap bataiye, aaj main aapki kya madad kar sakta hoon?"
         elif any(s in lower for s in ["hola", "cómo estás", "buenos días", "que tal"]):
             reply = "¡Hola! Estoy muy bien, gracias por preguntar. ¿En qué te puedo colaborar hoy?"
@@ -41,7 +63,11 @@ class MockLLMProvider(LLMProvider):
         elif "laptop" in lower or "screen" in lower:
             reply = "I understand your screen is having issues. Please check if the power indicator light is on or blinking."
         else:
-            reply = f"Hello! I am ClanVox, your real-time multilingual AI assistant. You said: '{last_message}'."
+            reply = (
+                f"I received your message: '{last_message}'. "
+                "I am currently running in offline demo mode. To enable full generative AI answers for any query, "
+                "please configure an API key (such as Groq, Gemini, or OpenAI) in your .env file."
+            )
 
         words = reply.split(" ")
         for i, word in enumerate(words):

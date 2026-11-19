@@ -25,7 +25,13 @@ router = APIRouter(tags=["realtime"])
 def create_providers():
     # Factory selecting providers according to config / settings
     stt = DeepgramSTTProvider() if settings.STT_PROVIDER == "deepgram" else MockSTTProvider()
-    llm = OpenAILLMProvider() if settings.LLM_PROVIDER in ["openai", "groq"] else MockLLMProvider()
+    if settings.LLM_PROVIDER in ["openai", "groq", "gemini"] or settings.OPENAI_API_KEY or settings.GROQ_API_KEY or settings.GEMINI_API_KEY:
+        llm = OpenAILLMProvider()
+    elif settings.LLM_PROVIDER == "anthropic" and settings.ANTHROPIC_API_KEY:
+        from ..providers.llm.anthropic import AnthropicLLMProvider
+        llm = AnthropicLLMProvider()
+    else:
+        llm = MockLLMProvider()
 
     tts_mode = (settings.TTS_PROVIDER or "edge").lower()
     if tts_mode == "openai":
