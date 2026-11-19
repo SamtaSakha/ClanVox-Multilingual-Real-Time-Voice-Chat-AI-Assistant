@@ -39,14 +39,12 @@ venv.bak/
 .env.*
 !.env.example
 
-# Local Activity & Session History Logs (keep history/ folder structure)
+# Local Activity Runtime Logs
 history/*.log
 history/*.jsonl
-history/sessions/*.json
-history/sessions/*.md
 !history/README.md
 !history/.gitkeep
-!history/sessions/.gitkeep
+!history/sessions/**
 
 # IDE & Editor settings
 .idea/
